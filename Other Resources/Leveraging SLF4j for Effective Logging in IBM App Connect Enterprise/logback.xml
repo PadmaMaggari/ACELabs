@@ -1,0 +1,43 @@
+<configuration>
+	<property name="LOG_ROOT" value="c:/temp/logs" />
+	<property name="LOG_FILE_NAME" value="application" />
+	
+<!--	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+-->
+	<appender name="FILE" class="ch.qos.logback.core.FileAppender">
+		<file>${LOG_ROOT}/${LOG_FILE_NAME}.log</file>
+		
+		<!-- Encoder to format log messages -->
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <!-- Define the layout pattern -->
+            <pattern>%date{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </layout>
+	</appender>
+	
+	<logger name="fileLogger" level="INFO" additivity="false">
+        <appender-ref ref="FILE"/>
+    </logger>
+	<logger name="fileLogger" level="DEBUG" additivity="false">
+        <appender-ref ref="FILE"/>
+    </logger>
+	<root level="INFO">
+	<!--	<appender-ref ref="STDOUT" /> -->
+		<appender-ref ref="FILE" />
+	</root>
+	<root level="DEBUG">
+		<appender-ref ref="FILE" />
+	</root>
+	<root level="ERROR">
+		<appender-ref ref="FILE" />
+	</root>
+	<root level="WARN">
+		<appender-ref ref="FILE" />
+	</root>
+	<root level="TRACE">
+		<appender-ref ref="FILE" />
+	</root>
+</configuration>
