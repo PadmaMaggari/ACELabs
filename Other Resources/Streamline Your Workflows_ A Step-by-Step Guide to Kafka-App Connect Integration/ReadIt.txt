@@ -1,0 +1,2 @@
+Open-Kafka.bat file is given here is you can run zookeeper and kafka broker both by running a single bat file.
+before running this file edit this and specify your own value for apache kafka installation directory i.e cd <kafka installation directory>.
