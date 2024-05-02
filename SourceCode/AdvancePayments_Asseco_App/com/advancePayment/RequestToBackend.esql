@@ -1,0 +1,73 @@
+
+
+BROKER SCHEMA com.advancePayment
+PATH com.standardBank.commom;
+DECLARE soapenv NAMESPACE 'http://schemas.xmlsoap.org/soap/envelope/';
+DECLARE ns1 NAMESPACE 'http://webservice.wecodee.com/advancepayment';
+DECLARE logger_name,log_type,log4j_config_path,log4j_error_msg EXTERNAL CHARACTER '';
+DECLARE rc BOOLEAN false;
+CREATE COMPUTE MODULE RequestToBackend
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL initLog4j(log4j_config_path) INTO rc;
+		IF (rc = TRUE) THEN			
+
+
+			CALL RequestToBackend();
+		ELSE
+			SET OutputRoot.XMLNSC.Log.Message = log4j_error_msg;
+		END IF;
+	END;
+
+
+
+	CREATE PROCEDURE RequestToBackend() BEGIN
+		DECLARE encodeRef ,ccidRef INTEGER;
+		SET encodeRef=InputRoot.Properties.Encoding;
+		SET ccidRef=InputRoot.Properties.CodedCharSetId;
+		DECLARE application_name CHARACTER ApplicationLabel;
+		DECLARE created_On TIMESTAMP CURRENT_TIMESTAMP;
+
+		DECLARE domainDataRef REFERENCE TO InputRoot.JSON.Data;
+		DECLARE inref REFERENCE TO InputRoot.JSON.Data.data;
+		SET Environment.chlreq = CAST(ASBITSTREAM (domainDataRef)AS CHARACTER CCSID ccidRef ENCODING encodeRef);
+		SET Environment.id= inref.transactionId;
+			
+
+
+		CALL AUDIT_PROCEDURE(Environment.id, created_On, Environment.chlreq, 'Channel_Request', application_name);
+		CALL writeToLogFile(MessageFlowLabel, logger_name, log_type,'CHANNEL_REQ data is: '||Environment.chlreq) INTO rc;		
+
+
+		SET OutputRoot.XMLNSC.soapenv:Envelope.(XMLNSC.NamespaceDecl)xmlns:soap=soapenv;
+		SET OutputRoot.XMLNSC.soapenv:Envelope.soapenv:Body.ns1:ADVANCEPAYMENT_REQ.(XMLNSC.NamespaceDecl)xmlns:ns1=ns1;
+		CREATE FIELD OutputRoot.XMLNSC.soapenv:Envelope.soapenv:Body.ns1:ADVANCEPAYMENT_REQ.ns1:FCUBS_HEADER;
+
+		CREATE FIELD OutputRoot.XMLNSC.soapenv:Envelope.soapenv:Body.ns1:ADVANCEPAYMENT_REQ.ns1:FCUBS_BODY.ns1:Details;
+		DECLARE outBody REFERENCE TO OutputRoot.XMLNSC.soapenv:Envelope.soapenv:Body.ns1:ADVANCEPAYMENT_REQ.ns1:FCUBS_BODY.ns1:Details;
+		SET outBody.ns1:traceId = inref.transactionId;
+		SET outBody.ns1:transactionId = inref.transactionId;
+		SET outBody.ns1:branchCode = inref.branchCode;
+		SET outBody.ns1:type = inref.type;
+		SET outBody.ns1:debitAccount = inref.debitAccount;
+		SET outBody.ns1:debitValueDate = inref.debitValueDate;
+		SET outBody.ns1:creditAccount = inref.creditAccount;
+		SET outBody.ns1:creditValueDate = inref.creditValueDate;
+		SET outBody.ns1:creditCardNumber = inref.creditCardNumber;
+		SET outBody.ns1:processedAt = inref.processedAt;
+		SET outBody.ns1:amount = inref.amount;
+		SET outBody.ns1:currency = inref.currency;
+		SET outBody.ns1:details = inref.details;
+
+		DECLARE bodyBlob BLOB ASBITSTREAM(OutputRoot.XMLNSC);
+		DECLARE bodyAsChar CHAR CAST(bodyBlob AS CHARACTER CCSID 1208);
+		SET Environment.hostreq = CAST(ASBITSTREAM(OutputRoot.XMLNSC) AS CHARACTER CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+		SET Environment.hostreq = bodyAsChar;		
+		   
+
+
+		CALL AUDIT_PROCEDURE(Environment.id, created_On, Environment.hostreq, 'Host_Request', application_name);
+		CALL writeToLogFile(MessageFlowLabel, logger_name, log_type,'HOST_REQ data is: '||Environment.hostreq) INTO rc;
+	END;
+
+END MODULE;

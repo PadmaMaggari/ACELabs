@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "data": {
+      "type": "object",
+      "properties": {
+        "transactionId": {
+          "type": "string",
+           "minLength": 1,
+                    "minOccurs": 1
+        },
+        "branchCode": {
+          "type": "string",
+           "minLength": 3,
+           "maxLength": 3,
+                    "minOccurs": 1
+        },
+        "type": {
+          "type": "string",
+           "minLength": 1,
+           "maxLength": 1,
+                    "minOccurs": 1
+        },
+        "debitAccount": {
+          "type": "string",
+           "minLength": 13,
+           "maxLength": 13,
+                    "minOccurs": 1
+        },
+        "debitValueDate": {
+          "type": "string"
+        },
+        "creditAccount": {
+          "type": "string",
+           "minLength": 13,
+           "maxLength": 13,
+                    "minOccurs": 1
+        },
+        "creditValueDate": {
+          "type": "string"
+        },
+        "creditCardNumber": {
+          "type": "string",
+           "minLength": 9,
+           "maxLength": 9,
+                    "minOccurs": 1
+        },
+        "processedAt": {
+          "type": "string"
+        },
+        "amount": {
+          "type": "string"
+        },
+        "currency": {
+          "type": "string",
+           "minLength": 3,
+           "maxLength": 3,
+                    "minOccurs": 1
+        },
+        "details": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "transactionId",
+        "branchCode",
+        "type",
+        "debitAccount",
+        "debitValueDate",
+        "creditAccount",
+        "creditValueDate",
+        "creditCardNumber",
+        "processedAt",
+        "amount",
+        "currency",
+        "details"
+      ]
+    }
+  },
+  "required": [
+    "data"
+  ]
+}

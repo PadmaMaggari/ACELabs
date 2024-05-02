@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:ComIbmCompute.msgnode="ComIbmCompute.msgnode" xmlns:ComIbmSOAPRequest.msgnode="ComIbmSOAPRequest.msgnode" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xmlns:eflow="http://www.ibm.com/wbi/2005/eflow" xmlns:utility="http://www.ibm.com/wbi/2005/eflow_utility" nsURI="postAdvPayment.subflow" nsPrefix="postAdvPayment.subflow">
+  <eClassifiers xmi:type="eflow:FCMComposite" name="FCMComposite_1" nodeLayoutStyle="SQUARE">
+    <eSuperTypes href="http://www.ibm.com/wbi/2005/eflow#//FCMBlock"/>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.logger_name" name="logger_name" defaultValueLiteral="SBInfo">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.log_type" name="log_type" defaultValueLiteral="INFO">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.log4j_config_path" name="log4j_config_path" defaultValueLiteral="C:\Users\log4J\Log4jConfigurationFile.xml">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <eStructuralFeatures xmi:type="ecore:EAttribute" xmi:id="Property.log4j_error_msg" name="log4j_error_msg" defaultValueLiteral="Log file doesn't exists">
+      <eType xmi:type="ecore:EDataType" href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    </eStructuralFeatures>
+    <translation xmi:type="utility:TranslatableString" key="postAdvPayment" bundleName="postAdvPayment" pluginId="AdvancePayments_AssecoACMBackOfficeportal_App"/>
+    <colorGraphic16 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/AdvancePayments_AssecoACMBackOfficeportal_App/icons/full/obj16/postAdvPayment.gif"/>
+    <colorGraphic32 xmi:type="utility:GIFFileGraphic" resourceName="platform:/plugin/AdvancePayments_AssecoACMBackOfficeportal_App/icons/full/obj30/postAdvPayment.gif"/>
+    <composition>
+      <nodes xmi:type="eflow:FCMSource" xmi:id="InTerminal.Input_1" location="26,18">
+        <translation xmi:type="utility:TranslatableString" key="Input" bundleName="postAdvPayment" pluginId="AdvancePayments_AssecoACMBackOfficeportal_App"/>
+      </nodes>
+      <nodes xmi:type="eflow:FCMSink" xmi:id="OutTerminal.Output_1" location="556,23">
+        <translation xmi:type="utility:TranslatableString" key="Output" bundleName="postAdvPayment" pluginId="AdvancePayments_AssecoACMBackOfficeportal_App"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_1" location="112,55" dataSource="STDSN" computeExpression="esql://routine/com.advancePayment#RequestToBackend.Main" computeMode="all">
+        <translation xmi:type="utility:ConstantString" string="RequestToBackend"/>
+      </nodes>
+      <nodes xmi:type="ComIbmSOAPRequest.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_2" location="269,99" wsdlOperationMode="gateway" useHTTPTransport="true" webServiceURL="http://localhost:7801/simulator" sslProtocol="TLS" parserXmlnscBuildTreeUsingXMLSchema="false" validateMaster="none">
+        <translation xmi:type="utility:ConstantString" string="BackendCall"/>
+      </nodes>
+      <nodes xmi:type="ComIbmCompute.msgnode:FCMComposite_1" xmi:id="FCMComposite_1_3" location="385,61" dataSource="STDSN" computeExpression="esql://routine/com.advancePayment#ResponseToChannel.Main" computeMode="all">
+        <translation xmi:type="utility:ConstantString" string="ResponseToChannel"/>
+      </nodes>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_1" targetNode="FCMComposite_1_1" sourceNode="InTerminal.Input_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_3" targetNode="FCMComposite_1_3" sourceNode="FCMComposite_1_2" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_6" targetNode="FCMComposite_1_2" sourceNode="FCMComposite_1_1" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+      <connections xmi:type="eflow:FCMConnection" xmi:id="FCMConnection_7" targetNode="OutTerminal.Output_1" sourceNode="FCMComposite_1_3" sourceTerminalName="OutTerminal.out" targetTerminalName="InTerminal.in"/>
+    </composition>
+    <propertyOrganizer>
+      <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.logger_name">
+        <propertyName xmi:type="utility:TranslatableString" key="Property.logger_name" bundleName="postAdvPayment" pluginId="AdvancePayments_AssecoACMBackOfficeportal_App"/>
+        <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.log_type">
+          <propertyName xmi:type="utility:TranslatableString" key="Property.log_type" bundleName="postAdvPayment" pluginId="AdvancePayments_AssecoACMBackOfficeportal_App"/>
+          <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.log4j_config_path">
+            <propertyName xmi:type="utility:TranslatableString" key="Property.log4j_config_path" bundleName="postAdvPayment" pluginId="AdvancePayments_AssecoACMBackOfficeportal_App"/>
+            <propertyDescriptor groupName="Group.Basic" configurable="true" userDefined="true" describedAttribute="Property.log4j_error_msg">
+              <propertyName xmi:type="utility:TranslatableString" key="Property.log4j_error_msg" bundleName="postAdvPayment" pluginId="AdvancePayments_AssecoACMBackOfficeportal_App"/>
+            </propertyDescriptor>
+          </propertyDescriptor>
+        </propertyDescriptor>
+      </propertyDescriptor>
+    </propertyOrganizer>
+    <stickyBoard/>
+  </eClassifiers>
+</ecore:EPackage>

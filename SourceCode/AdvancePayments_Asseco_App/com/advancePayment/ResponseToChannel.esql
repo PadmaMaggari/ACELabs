@@ -1,0 +1,54 @@
+BROKER SCHEMA com.advancePayment
+PATH com.standardBank.commom;
+CREATE COMPUTE MODULE ResponseToChannel
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		   CALL CopyEntireMessage();
+		   
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		--SET Environment.domainDataRef = InputRoot.SOAP.Body;
+		DECLARE ccidRef, encodeRef INTEGER;
+		DECLARE envRef REFERENCE TO Environment.Variables;
+
+		SET ccidRef   = InputRoot.Properties.CodedCharSetId;
+		SET encodeRef = InputRoot.Properties.Encoding;
+		DECLARE domainDataRef REFERENCE TO InputRoot.SOAP.Body;
+
+		DECLARE application_name CHARACTER ApplicationLabel;
+		DECLARE created_On TIMESTAMP CURRENT_TIMESTAMP;
+
+		SET Environment.hostres = CAST(ASBITSTREAM (domainDataRef)AS CHARACTER CCSID ccidRef ENCODING encodeRef);
+		CALL AUDIT_PROCEDURE(Environment.id, created_On, Environment.hostres,'Host_Response',application_name);
+		CALL writeToLogFile(MessageFlowLabel, logger_name, log_type,'HOST_RES data is: '||Environment.hostres) INTO rc;
+
+		DECLARE inBody REFERENCE TO InputRoot.SOAP.Body.*:ADVANCEPAYMENT_RES.*:FCUBS_BODY;
+		DECLARE inrefBody REFERENCE TO InputRoot.SOAP.Body.*:ADVANCEPAYMENT_RES.*:FCUBS_BODY.*:Details;
+		DECLARE inrefFcubsHeader REFERENCE TO InputRoot.SOAP.*:Body.ADVANCEPAYMENT_RES.*:FCUBS_HEADER;
+		CREATE LASTCHILD OF OutputRoot.JSON.Data NAME 'data';
+		DECLARE outref REFERENCE TO OutputRoot.JSON.Data.data;		
+
+
+		SET outref.branchCode         = inrefBody.*:branchCode;
+		SET outref.cardHolderName     = inrefBody.*:cardHolderName;
+		SET outref.segment            = inrefBody.*:segment;
+		SET outref.customerId         = inrefBody.*:customerId;
+		SET outref.cardType           = inrefBody.*:cardType;
+		SET outref.plafond            = inrefBody.*:plafond;
+		SET outref.currency           = inrefBody.*:currency;
+		SET outref.accountNumber      = inrefBody.*:accountNumber;
+		SET outref.cardNumber         = inrefBody.*:cardNumber;
+		SET outref.status             = inrefBody.*:status;
+		SET OutputRoot.JSON.Data.message    = inBody.*:message;
+		SET OutputRoot.JSON.Data.statusCode = inBody.*:statusCode;		 
+
+
+		SET Environment.Chlres =CAST(ASBITSTREAM (OutputRoot.JSON.Data)AS CHARACTER CCSID ccidRef ENCODING encodeRef);
+		CALL AUDIT_PROCEDURE(Environment.id, created_On, Environment.Chlres, 'Channel_Response', application_name);
+		CALL writeToLogFile(MessageFlowLabel, logger_name, log_type,'CHANNEL_RES data is: '||Environment.Chlres) INTO rc;
+
+	END;
+END MODULE;	

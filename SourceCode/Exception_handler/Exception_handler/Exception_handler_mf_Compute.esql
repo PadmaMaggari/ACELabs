@@ -1,0 +1,63 @@
+BROKER SCHEMA Exception_handler
+PATH com.standardBank.commom;
+DECLARE log4j_config_path,log4j_error_msg,logger_name,log_type  EXTERNAL CHARACTER '';
+DECLARE rc BOOLEAN false;
+
+CREATE COMPUTE MODULE Exception_handler_mf_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		CALL initLog4j(log4j_config_path) INTO rc;
+		   CALL CopyEntireMessage();
+		   
+		RETURN TRUE;
+	END;
+
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		DECLARE encodeRef ,ccidRef INTEGER;
+	    SET encodeRef=InputRoot.Properties.Encoding;
+		SET ccidRef=InputRoot.Properties.CodedCharSetId;
+		DECLARE application_name CHARACTER ApplicationLabel;
+		DECLARE created_On TIMESTAMP CURRENT_TIMESTAMP;
+		
+		DECLARE domainDataRef REFERENCE TO InputRoot.JSON.Data;
+		DECLARE inref REFERENCE TO InputRoot.JSON.Data.data;
+		SET Environment.payload = CAST(ASBITSTREAM (domainDataRef)AS CHARACTER CCSID ccidRef ENCODING encodeRef);
+		SET Environment.id= inref.transactionId;
+		
+		DECLARE excp REFERENCE TO InputExceptionList.*[1];
+		DECLARE excpType CHARACTER FIELDNAME(InputExceptionList.*);
+		DECLARE text,ftext,number,actualExcpText,messageText CHARACTER;
+		DECLARE excptext REFERENCE TO excp.Text;
+		DECLARE insertRef REFERENCE TO InputExceptionList.*[1];
+		
+		
+		
+	WHILE LASTMOVE(excp) DO
+			MOVE  excp LASTCHILD ;	
+			IF excp.Number is not null THEN
+			SET text=excp.Text;
+		DECLARE inserts REFERENCE TO excp.Insert;
+		MOVE insertRef TO excp.Insert[>];
+				WHILE LASTMOVE(insertRef) AND FIELDNAME(insertRef) = 'Insert' DO
+						SET actualExcpText = insertRef.Text ;
+					MOVE insertRef PARENT;
+				END WHILE;
+			SET number = excp.Number;	
+			END IF;
+		END WHILE;
+
+SET messageText= text||','||actualExcpText;
+
+		CALL Error_Logging(Environment.id, created_On, Environment.payload, excpType, application_name, messageText);
+		CALL writeToLogFile(MessageFlowLabel, logger_name, log_type,'ERROR data is: '||messageText) INTO rc;
+		
+		SET OutputRoot.JSON.Data.ERROR.ErrorType   = excpType;
+		SET OutputRoot.JSON.Data.ERROR.ErrorDESC   = text;
+		SET OutputRoot.JSON.Data.ERROR.ActualError = actualExcpText;
+		SET OutputRoot.JSON.Data.ERROR.ErrorCode   = number;
+		
+	END;
+END MODULE;
+

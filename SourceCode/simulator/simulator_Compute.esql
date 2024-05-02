@@ -1,0 +1,54 @@
+
+
+CREATE COMPUTE MODULE simulator_Compute
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		-- CALL CopyMessageHeaders();
+		 CALL CopyEntireMessage();
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+	DECLARE fldName  CHARACTER FIELDNAME(InputRoot.SOAP.Body.*:ADVANCEPAYMENT_REQ);
+		IF fldName='ADVANCEPAYMENT_REQ' THEN
+			DECLARE res CHARACTER '<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:ADVANCEPAYMENT_RES xmlns:ns1="http://webservice.wecodee.com/advancepayment">
+            <ns1:FCUBS_HEADER/>
+            <ns1:FCUBS_BODY>
+<ns1:Details>
+    <ns1:branchCode>001</ns1:branchCode>
+    <ns1:cardHolderName>JEMILA MOHAMMED ALEMU</ns1:cardHolderName>
+    <ns1:segment>segment</ns1:segment>
+    <ns1:customerId>6</ns1:customerId>
+    <ns1:cardType>C</ns1:cardType>
+    <ns1:plafond>plafond</ns1:plafond>
+    <ns1:currency>ETB</ns1:currency>
+    <ns1:cardNumber>A01653421</ns1:cardNumber>
+    <ns1:transactionId>6etedtd</ns1:transactionId>
+    <ns1:status>0</ns1:status>
+</ns1:Details>
+<ns1:message>Operation performed successfully</ns1:message>
+<ns1:statusCode>200</ns1:statusCode>
+   </ns1:FCUBS_BODY>
+        </ns1:ADVANCEPAYMENT_RES>
+    </soap:Body>
+</soap:Envelope>';
+
+DECLARE myblob BLOB CAST(res AS BLOB CCSID InputRoot.Properties.CodedCharSetId ENCODING InputRoot.Properties.Encoding);
+CREATE LASTCHILD OF OutputRoot DOMAIN('XMLNSC') PARSE(myblob);
+		ELSE
+			SET OutputRoot=InputRoot;
+		END IF;
+	END;
+END MODULE;

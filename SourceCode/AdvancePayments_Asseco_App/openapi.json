@@ -1,0 +1,28 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "AdvancePayments_Asseco_App",
+    "version": "1.0.0",
+    "description": "AdvancePayments_Asseco_App"
+  },
+  "servers": [
+    {
+      "url": "/advancepayments_asseco_app/v1"
+    }
+  ],
+  "components": {
+    "schemas": {}
+  },
+  "paths": {
+    "/advPayment": {
+      "parameters": [],
+      "post": {
+        "responses": {
+          "200": {
+            "description": "success"
+          }
+        }
+      }
+    }
+  }
+}
